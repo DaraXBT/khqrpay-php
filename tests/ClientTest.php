@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ClientTest extends TestCase
 {
-    private const KEY = 'kp_test_51HqLyjWDarjtT1zdp7dcXs9u';
+    private const KEY = 'kp_test_example0000000000000000';
 
     private const UUID_V4 = '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/D';
 
