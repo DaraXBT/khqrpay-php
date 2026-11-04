@@ -47,7 +47,7 @@ $payment = $khqrpay->payments->create([
     'currency' => 'USD',          // or 'KHR', in whole riel: '20000'
     'reference_id' => 'INV-2048', // your order id
     'metadata' => ['cart_id' => 'c_1'],
-], ['idempotency_key' => 'order-INV-2048']);
+], ['idempotency_key' => 'INV-2048-attempt-1']); // one per checkout attempt
 
 header('Location: ' . $payment['checkout_url'], true, 303);
 exit;
@@ -57,7 +57,7 @@ Amounts are strings, like `'16.88'` or `'20000'`. A float or int amount throws `
 
 Every call returns the decoded JSON as an associative array. The payment has an `id`, a `status` (`pending`, `scanned`, `paid`, `expired` or `failed`), a `checkout_url`, and a `qr_string` if you’d rather draw the KHQR yourself.
 
-`idempotency_key` is optional. Without it, the SDK sends a random UUID v4 as the `Idempotency-Key` header. Pass your own when you might retry, so a retry can’t create a second payment.
+`idempotency_key` is optional. Without it, the SDK sends a random UUID v4 as the `Idempotency-Key` header. Pass your own, one per checkout attempt (such as `INV-2048-attempt-1`), so a retry of that attempt can’t create a second payment. Don’t reuse one key for the whole order: a customer who tries again after the QR expired would get the expired payment back.
 
 ### Retrieve, list and usage
 
@@ -108,6 +108,11 @@ Route::post('/webhooks/khqrpay', function (Request $request) {
         );
     } catch (KHQRPayError $e) {
         return response('Invalid signature', 400);
+    }
+
+    // A test event or a test-mode payment: nothing to fulfil.
+    if (($event['test'] ?? false) === true || ($event['livemode'] ?? false) !== true) {
+        return response()->noContent();
     }
 
     // Handle each event once, however many times it arrives.
@@ -165,6 +170,10 @@ if (!\KHQRPay\Webhook::verify($payload, $signature, getenv('KHQRPAY_WEBHOOK_SECR
 }
 
 $event = json_decode($payload, true);
+if (($event['test'] ?? false) === true || ($event['livemode'] ?? false) !== true) {
+    http_response_code(200); // a test event or test-mode payment: nothing to fulfil
+    exit;
+}
 // Deduplicate on $event['id'], then handle $event['type'].
 
 http_response_code(200);
@@ -201,7 +210,7 @@ The SDK never retries by itself. On 429, 500, 502 and 503, and on `network_error
 use KHQRPay\KHQRPayError;
 
 $params = ['amount' => '16.88', 'currency' => 'USD', 'reference_id' => 'INV-2048'];
-$options = ['idempotency_key' => 'order-INV-2048']; // the same key on every attempt
+$options = ['idempotency_key' => 'INV-2048-attempt-1']; // one per checkout attempt, the same on every retry
 
 for ($attempt = 1; ; $attempt++) {
     try {
