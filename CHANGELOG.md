@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 (2026-11-04)
 
 - README: one idempotency key per checkout attempt, not per order, and the Laravel and plain PHP webhook examples skip test events.
 

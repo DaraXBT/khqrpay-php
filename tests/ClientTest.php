@@ -48,7 +48,7 @@ final class ClientTest extends TestCase
         $this->assertSame($this->vectors['createRequest']['path'], $request['uri']);
         $this->assertSame('Bearer ' . self::KEY, $request['headers']['authorization']);
         $this->assertSame('application/json', $request['headers']['content-type']);
-        $this->assertSame('khqrpay-php/0.1.0', $request['headers']['user-agent']);
+        $this->assertSame('khqrpay-php/0.1.1', $request['headers']['user-agent']);
         $this->assertMatchesRegularExpression(self::UUID_V4, $request['headers']['idempotency-key']);
 
         // The body is the createRequest body exactly: same keys, order and types.
@@ -208,7 +208,7 @@ final class ClientTest extends TestCase
         $this->assertSame('GET', $request['method']);
         $this->assertSame('/v1/payments/pay%2F..%2Fx%20y%3Fz%231', $request['uri']);
         $this->assertSame('Bearer ' . self::KEY, $request['headers']['authorization']);
-        $this->assertSame('khqrpay-php/0.1.0', $request['headers']['user-agent']);
+        $this->assertSame('khqrpay-php/0.1.1', $request['headers']['user-agent']);
         $this->assertSame('', $request['body']);
     }
 
@@ -369,8 +369,8 @@ final class ClientTest extends TestCase
     {
         $this->assertInstanceOf(Client::class, new Client('kp_live_abc123'));
         $this->assertInstanceOf(Client::class, new Client('kp_test_abc123'));
-        $this->assertSame('0.1.0', Client::VERSION);
-        $this->assertSame('khqrpay-php/0.1.0', Client::USER_AGENT);
+        $this->assertSame('0.1.1', Client::VERSION);
+        $this->assertSame('khqrpay-php/0.1.1', Client::USER_AGENT);
         $this->assertSame('https://khqrpay.dev', Client::DEFAULT_BASE_URL);
         $this->assertSame(30, Client::DEFAULT_TIMEOUT);
     }
