@@ -247,6 +247,31 @@ vendor/bin/phpunit
 
 The tests run every case in `tests/test-vectors.json`, and send real HTTP requests to a local `php -S` server.
 
+## Using your own HTTP layer
+
+By default the SDK sends requests with ext-curl. Hosts with their own HTTP layer can pass a `transport` instead. In WordPress:
+
+```php
+$khqrpay = new \KHQRPay\Client($key, [
+    'transport' => function ($method, $url, $headers, $body, $timeout) {
+        $res = wp_remote_request($url, [
+            'method' => $method, 'headers' => $headers, 'body' => $body,
+            'timeout' => $timeout, 'redirection' => 0,
+        ]);
+        if (is_wp_error($res)) {
+            throw new \RuntimeException($res->get_error_message());
+        }
+        return [
+            'status' => (int) wp_remote_retrieve_response_code($res),
+            'headers' => wp_remote_retrieve_headers($res)->getAll(),
+            'body' => wp_remote_retrieve_body($res),
+        ];
+    },
+]);
+```
+
+A transport must not follow redirects. A thrown exception becomes a `network_error`.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

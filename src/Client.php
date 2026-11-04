@@ -16,6 +16,10 @@ use KHQRPay\Service\Usage;
  * Options:
  * - base_url (string): defaults to https://khqrpay.dev.
  * - timeout (int|float): seconds per request, defaults to 30.
+ * - transport (callable): sends one HTTP request instead of ext-curl, for hosts with their own HTTP layer (WordPress:
+ *   wp_remote_request). Signature: function (string $method, string $url, array $headers, ?string $body,
+ *   float $timeout): array{status: int, headers: array<string,string>, body: string}. Header names in the returned
+ *   array may be any case. It must not follow redirects, and should throw on a network failure.
  *
  * The SDK never retries by itself. Every call returns the decoded JSON as an
  * associative array, or throws KHQRPayError.
@@ -65,8 +69,8 @@ final class Client
         }
 
         foreach (array_keys($options) as $name) {
-            if ($name !== 'base_url' && $name !== 'timeout') {
-                throw new \InvalidArgumentException('Unknown option "' . $name . '". Use: base_url, timeout.');
+            if ($name !== 'base_url' && $name !== 'timeout' && $name !== 'transport') {
+                throw new \InvalidArgumentException('Unknown option "' . $name . '". Use: base_url, timeout, transport.');
             }
         }
 
@@ -87,7 +91,15 @@ final class Client
             }
         }
 
-        $http = new HttpClient($secretKey, $baseUrl, (float) $timeout);
+        $transport = null;
+        if (isset($options['transport'])) {
+            if (!is_callable($options['transport'])) {
+                throw new \InvalidArgumentException('The "transport" option must be callable.');
+            }
+            $transport = $options['transport'];
+        }
+
+        $http = new HttpClient($secretKey, $baseUrl, (float) $timeout, $transport);
         $this->payments = new Payments($http);
         $this->usage = new Usage($http);
     }
