@@ -1,0 +1,54 @@
+{
+    "name": "khqrpay/khqrpay-php",
+    "description": "KHQRPay for PHP: official KHQR payments SDK for Cambodia. Accept ABA, ACLEDA, Wing and every Bakong app, paid straight to your ABA account.",
+    "type": "library",
+    "keywords": [
+        "khqr",
+        "khqrpay",
+        "bakong",
+        "aba",
+        "acleda",
+        "wing",
+        "cambodia",
+        "payments",
+        "qr",
+        "webhook",
+        "laravel",
+        "woocommerce"
+    ],
+    "homepage": "https://khqrpay.dev",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "KHQRPay",
+            "homepage": "https://khqrpay.dev"
+        }
+    ],
+    "support": {
+        "docs": "https://khqrpay.dev/docs"
+    },
+    "require": {
+        "php": ">=7.4",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "KHQRPay\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "KHQRPay\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
